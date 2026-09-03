@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Subasta de Tríadas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%;overflow:hidden}body{font-family:'Segoe UI',Arial,sans-serif;color:#eefcff;background:radial-gradient(circle at 15% 20%,rgba(0,205,255,.12),transparent 28%),radial-gradient(circle at 85% 75%,rgba(255,50,190,.1),transparent 30%),linear-gradient(135deg,#030611,#071126 55%,#040711)}button,select,input{font:inherit}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #28e8ff;outline-offset:3px}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(255,255,255,.8) 1px,transparent 1.5px),radial-gradient(circle,rgba(40,232,255,.5) .8px,transparent 1.3px);background-size:190px 170px,310px 260px;background-position:20px 30px,100px 80px;opacity:.24}
+
+/* --- ESTILOS DEL MENÚ INICIAL CON ESTÉTICA GAMER / SYNTHWAVE --- */
+#menu-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* Fondo estilo la imagen adjunta: gradientes radiales púrpuras, magentas y azures con un fondo espacial oscuro */
+  background: 
+    radial-gradient(circle at 10% 15%, rgba(255, 0, 150, 0.45), transparent 45%),
+    radial-gradient(circle at 90% 15%, rgba(130, 0, 255, 0.4), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(0, 200, 255, 0.35), transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(255, 0, 200, 0.3), transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(20, 10, 45, 0.95), #070314 90%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+  overflow: hidden;
+}
+
+/* Destellos sutiles en el fondo del menú */
+#menu-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #ff00c8, transparent),
+    radial-gradient(2px 2px at 40px 70px, #00f0ff, transparent),
+    radial-gradient(1.5px 1.5px at 90px 40px, #fff, transparent),
+    radial-gradient(2px 2px at 160px 120px, #ff007f, transparent);
+  background-size: 200px 200px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+#menu-container.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.menu-title {
+  font-size: clamp(2rem, 5.5vw, 3.8rem);
+  font-weight: 900;
+  margin-bottom: 2.5rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  
+  /* Gradiente Neón animado */
+  background: linear-gradient(110deg, #ff00c8 10%, #00f0ff 40%, #ffffff 50%, #ff00c8 60%, #00f0ff 90%);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: titleGlowSweep 3s linear infinite;
+  
+  /* Sombras e iluminación Neón Synthwave */
+  filter: drop-shadow(0 0 12px rgba(255, 0, 200, 0.8)) drop-shadow(0 0 25px rgba(0, 240, 255, 0.6));
+}
+
+@keyframes titleGlowSweep {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.triad-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  transition: gap 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 2;
+}
+
+.triad-container.joined {
+  gap: 0px;
+}
+
+.number-box {
+  width: 90px;
+  height: 90px;
+  background: rgba(15, 8, 38, 0.85);
+  border: 3px solid #00f0ff;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #00f0ff;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.4), inset 0 0 15px rgba(0, 240, 255, 0.2);
+  user-select: none;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+}
+
+#center-box {
+  cursor: pointer;
+  z-index: 2;
+  border-color: #ff00c8;
+  color: #ffffff;
+  text-shadow: 0 0 10px #ff00c8, 0 0 20px #ff00c8;
+  box-shadow: 0 0 25px rgba(255, 0, 200, 0.6), inset 0 0 18px rgba(255, 0, 200, 0.3);
+}
+
+#center-box:hover {
+  transform: scale(1.08);
+  border-color: #00f0ff;
+  box-shadow: 0 0 35px rgba(0, 240, 255, 0.9), inset 0 0 22px rgba(255, 0, 200, 0.5);
+  text-shadow: 0 0 12px #00f0ff, 0 0 25px #00f0ff;
+}
+
+.side-box {
+  opacity: 0;
+  transform: scale(0);
+  width: 0;
+  padding: 0;
+  margin: 0;
+  border-width: 0;
+  overflow: hidden;
+}
+
+.side-box.reveal {
+  opacity: 1;
+  transform: scale(1);
+  width: 90px;
+  border-width: 3px;
+}
+
+.triad-container.joined #left-box {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.triad-container.joined #center-box {
+  border-radius: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.triad-container.joined #right-box {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.instruction {
+  margin-top: 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #cbb2ff;
+  text-shadow: 0 0 8px rgba(203, 178, 255, 0.5);
+  transition: opacity 0.3s ease;
+  position: relative;
+  z-index: 2;
+  animation: pulseText 2s infinite ease-in-out;
+}
+
+@keyframes pulseText {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* BARRA LATERAL / NAVEGACIÓN RESPONSIVA */
+.sidebar{position:fixed;z-index:100;left:14px;top:50%;transform:translateY(-50%);width:58px;padding:9px 7px;display:flex;flex-direction:column;gap:8px;background:rgba(3,9,23,.76);border:1px solid rgba(40,232,255,.3);border-radius:18px;box-shadow:0 0 25px rgba(0,180,255,.12),inset 0 0 18px rgba(0,160,255,.04);backdrop-filter:blur(12px)}
+.nav-btn{width:42px;height:42px;border:0;border-radius:12px;display:grid;place-items:center;cursor:pointer;color:#b9d9e6;background:transparent;transition:.2s}.nav-btn:hover{background:rgba(40,232,255,.1);color:white;transform:scale(1.05)}.nav-btn.active{color:white;background:rgba(40,232,255,.13);box-shadow:inset 0 0 12px rgba(40,232,255,.1),0 0 13px rgba(40,232,255,.18)}.nav-btn svg{width:24px;height:24px;fill:currentColor;stroke:none}.nav-btn svg.stroke-icon{stroke:currentColor;fill:none;stroke-width:1.8}.nav-divider{height:1px;background:rgba(255,255,255,.09);margin:2px 3px}
+
+.nav-btn.crown-btn{color:#7a8b9e;transition:all .3s ease}
+.nav-btn.crown-btn.active-glow{
+  color:#ffe600;
+  background:rgba(255,230,0,.12);
+  box-shadow:0 0 15px rgba(255,230,0,.4), inset 0 0 10px rgba(255,230,0,.2);
+  filter:drop-shadow(0 0 6px rgba(255,230,0,.8));
+}
+
+.view{position:absolute;inset:0;padding:20px 22px 20px 88px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .22s,transform .22s}.view.active{opacity:1;pointer-events:auto;transform:none}
+.grid-view{display:flex;align-items:center;justify-content:center;padding:0}.grid-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}.grid-board{--cell:clamp(48px,7.3vw,92px);position:absolute;display:grid;grid-template-columns:repeat(10,var(--cell));grid-template-rows:repeat(10,var(--cell));border:2px solid rgba(40,232,255,.82);border-radius:8px;box-shadow:0 0 8px rgba(40,232,255,.8),0 0 26px rgba(0,180,255,.28),inset 0 0 25px rgba(0,180,255,.06);background:#050a19;transform-origin:center;cursor:grab;user-select:none;touch-action:none;transition:filter .35s,opacity .35s}.grid-board.dragging{cursor:grabbing}.grid-board.locked{filter:blur(7px) brightness(.55);cursor:default}.cell{position:relative;display:grid;place-items:center;border:0;border-right:1px solid rgba(40,232,255,.38);border-bottom:1px solid rgba(40,232,255,.38);color:#eafaff;font-size:clamp(1.15rem,2.2vw,2rem);font-weight:800;text-shadow:0 0 7px rgba(225,250,255,.55),0 0 15px rgba(40,232,255,.18);background:rgba(3,9,24,.72);cursor:pointer;transition:.18s}.cell:nth-child(10n){border-right:0}.cell:nth-last-child(-n+10){border-bottom:0}.cell:hover{z-index:2;color:#fff;background:rgba(40,232,255,.13);box-shadow:inset 0 0 18px rgba(40,232,255,.12)}.cell.selected{background:rgba(40,232,255,.2);color:#fff;box-shadow:inset 0 0 22px rgba(40,232,255,.28),0 0 16px rgba(40,232,255,.18)}
+.dir-overlay-btn{position:absolute;inset:0;z-index:40;border:1px solid rgba(40,232,255,.8);background:rgba(3,10,26,.88);color:#00f0ff;cursor:pointer;font-size:clamp(1.5rem,3.2vw,2.5rem);font-weight:900;display:grid;place-items:center;transition:.15s;box-shadow:inset 0 0 15px rgba(40,232,255,.3),0 0 12px rgba(40,232,255,.4);backdrop-filter:blur(4px);animation:popDir .2s ease-out both}@keyframes popDir{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.dir-overlay-btn:hover{background:rgba(40,232,255,.45);color:#fff;box-shadow:inset 0 0 20px rgba(40,232,255,.6),0 0 20px rgba(40,232,255,.8);transform:scale(1.04);z-index:41}
+.grid-controls{position:absolute;z-index:20;right:18px;bottom:18px;display:flex;gap:7px;pointer-events:auto}.grid-control{height:40px;padding:0 12px;border:1px solid rgba(40,232,255,.35);border-radius:11px;background:rgba(3,10,26,.8);color:white;cursor:pointer;backdrop-filter:blur(8px);font-size:0.85rem;font-weight:700;transition:.2s}
+.grid-control:hover{background:rgba(40,232,255,.2);border-color:#00f0ff}
+
+.last-drawn-widget{position:absolute;z-index:20;left:88px;bottom:18px;display:flex;align-items:center;gap:12px;padding:8px 14px;background:rgba(3,10,26,.82);border:1px solid rgba(40,232,255,.4);border-radius:14px;box-shadow:0 0 20px rgba(0,180,255,.15),inset 0 0 12px rgba(40,232,255,.05);backdrop-filter:blur(8px);cursor:pointer;transition:.2s;pointer-events:auto}
+.last-drawn-widget:hover{background:rgba(40,232,255,.15);border-color:#00f0ff;transform:scale(1.03)}
+.last-drawn-label{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:#8ab4c8;line-height:1.2}
+.last-drawn-value{font-size:1.6rem;font-weight:900;color:#fff;text-shadow:-1px 1px 0 #00d2ff,1px -1px 0 #ff00c8,0 0 10px rgba(255,255,255,.5)}
+
+.triad-overlay{position:fixed;z-index:90;left:0;right:0;top:0;padding:18px 80px 0 88px;pointer-events:none}.floating-cards{display:flex;justify-content:center;align-items:center;gap:12px;min-height:90px;pointer-events:none}
+.float-card{width:80px;height:80px;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border-radius:18px;color:#fff;font-size:2.2rem;font-weight:900;background:linear-gradient(145deg,rgba(7,27,51,.96),rgba(9,12,32,.96));border:1px solid rgba(40,232,255,.8);box-shadow:0 0 10px rgba(40,232,255,.55),0 0 30px rgba(0,180,255,.18),inset 0 0 18px rgba(40,232,255,.08);pointer-events:auto;animation:floatIn .48s cubic-bezier(.18,.85,.25,1) both}@keyframes floatIn{from{opacity:0;transform:translateY(70px) scale(.65) rotate(-5deg)}to{opacity:1;transform:none}}
+
+.op-select{
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  appearance:none;
+  width:62px;
+  height:62px;
+  border-radius:16px;
+  background:#040e23;
+  border:2.5px solid #00f0ff;
+  color:#00f0ff;
+  font-size:1.8rem;
+  font-weight:900;
+  text-align:center;
+  text-align-last:center;
+  cursor:pointer;
+  outline:none;
+  pointer-events:auto;
+  animation:opGlowPulse 2s infinite ease-in-out;
+  transition:transform .2s, border-color .2s, box-shadow .2s;
+}
+
+@keyframes opGlowPulse{
+  0%, 100%{ box-shadow: 0 0 8px rgba(0,240,255,.4), inset 0 0 6px rgba(0,240,255,.2); }
+  50%{ box-shadow: 0 0 22px rgba(0,240,255,.9), 0 0 35px rgba(255,0,200,.4), inset 0 0 14px rgba(0,240,255,.5); border-color: #fff; }
+}
+
+.op-select:hover, .op-select:focus{
+  background:#071638;
+  border-color:#00f0ff;
+  color:#00f0ff;
+  transform:scale(1.08);
+  box-shadow: 0 0 25px rgba(0,240,255,.8), inset 0 0 12px rgba(0,240,255,.4);
+}
+
+.op-select option{
+  background:#040e23;
+  color:#00f0ff;
+  font-size:1.3rem;
+  font-weight:800;
+  padding:10px;
+}
+
+.check-confirm-btn {
+  width: 65px;
+  height: 65px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: 2px solid #34d399;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 900;
+  cursor: pointer;
+  pointer-events: auto;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+  animation: checkPulse 1.5s infinite ease-in-out;
+}
+.check-confirm-btn:hover {
+  transform: scale(1.12);
+  filter: brightness(1.2);
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.9), inset 0 0 14px rgba(255, 255, 255, 0.5);
+}
+.check-confirm-btn:active {
+  transform: scale(0.95);
+}
+@keyframes checkPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); }
+  50% { box-shadow: 0 0 25px rgba(52, 211, 153, 0.9), 0 0 35px rgba(16, 185, 129, 0.6); }
+}
+
+.reset-selection{position:fixed;z-index:96;right:20px;top:20px;padding:12px 18px;font-size:0.95rem;font-weight:800;border-radius:14px;border:1px solid rgba(255,79,216,.45);background:rgba(45,7,40,.92);color:#fff;cursor:pointer;box-shadow:0 0 18px rgba(255,79,216,.16);pointer-events:auto;display:none}.reset-selection.visible{display:block}
+
+/* CAPA DE BLOQUEO Y CARTEL INTERACTIVO */
+.finish {
+  position: fixed;
+  z-index: 150;
+  inset: 0;
+  display: none;
+  place-items: center;
+  background: rgba(0, 4, 14, 0.75);
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+}
+.finish.visible {
+  display: grid;
+}
+
+.finish-box {
+  position: relative;
+  width: min(92vw, 560px);
+  padding: 36px 30px;
+  border-radius: 28px;
+  text-align: center;
+  background: rgba(3, 10, 26, 0.98);
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  pointer-events: auto;
+  user-select: none;
+}
+.finish-box:hover {
+  transform: scale(1.02);
+}
+.finish-box:active {
+  transform: scale(0.98);
+}
+
+.finish-box.success {
+  border: 3.5px solid #55f7a8;
+  box-shadow: 0 0 45px rgba(85,247,168,.5), inset 0 0 25px rgba(85,247,168,.15);
+  animation: victoryPop 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+.finish-box.success strong {
+  color: #55f7a8;
+  text-shadow: 0 0 18px rgba(85,247,168,.8), 0 0 30px rgba(85,247,168,.4);
+}
+.finish-box.error {
+  border: 3.5px solid #ff4f8b;
+  box-shadow: 0 0 45px rgba(255,79,139,.5), inset 0 0 25px rgba(255,79,139,.15);
+  animation: errorShake 0.4s ease-in-out both;
+}
+.finish-box.error strong {
+  color: #ff4f8b;
+  text-shadow: 0 0 18px rgba(255,79,139,.8), 0 0 30px rgba(255,79,139,.4);
+}
+.finish-box strong {
+  font-size: clamp(2.2rem, 6vw, 3rem);
+  display: block;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+.finish-box small {
+  display: block;
+  color: #e2f5ff;
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  font-weight: 800;
+  line-height: 1.4;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 10px;
+}
+
+@keyframes victoryPop {
+  0% { opacity: 0; transform: scale(0.5) translateY(40px); }
+  60% { opacity: 1; transform: scale(1.08) translateY(-10px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-12px); }
+  40%, 80% { transform: translateX(12px); }
+}
+
+/* VISTAS EXPANDIDAS PARA SUBASTA Y RULETA */
+.cards-view{display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:20px 20px 20px 88px}
+.cards-layout{width:100%;max-width:1300px;display:grid;grid-template-columns:minmax(320px,440px) 1fr;gap:35px;align-items:center;justify-content:center;margin:auto}
+
+.card-wrapper{perspective:1000px;width:290px;height:430px;margin:auto}
+.uno-80s-card{position:relative;width:100%;height:100%;border-radius:24px;cursor:pointer;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.4,.2,.2,1);box-shadow:0 15px 35px rgba(0,0,0,.6),0 0 25px rgba(0,205,255,.25);user-select:none}
+.uno-80s-card.flipping{transform:rotateY(180deg)}
+
+.card-face{position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;border-radius:24px;border:4px solid #00f0ff;overflow:hidden;background-color:#060d1f;background-image:linear-gradient(rgba(0,240,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px);background-size:14px 14px}
+
+.card-front{display:flex;align-items:center;justify-content:center}
+.card-front .oval-bg{position:absolute;width:82%;height:68%;background:radial-gradient(circle,#00a8e8,#002e66);border-radius:50%;transform:rotate(-25deg);border:3.5px solid #00f0ff;box-shadow:inset 0 0 18px rgba(0,0,0,.6),0 0 20px rgba(0,240,255,.4)}
+.card-front .main-number{position:relative;z-index:2;font-size:5.5rem;font-weight:900;color:#fff;text-shadow:-4px 4px 0 #00d2ff,4px -4px 0 #ff00c8,0 0 20px rgba(255,255,255,.8);letter-spacing:-2px}
+.card-front .corner-index{position:absolute;font-size:1.5rem;font-weight:900;color:#fff;text-shadow:-1px 1px 0 #00d2ff,1px -1px 0 #ff00c8}
+.card-front .corner-index.top-left{top:14px;left:16px}
+.card-front .corner-index.bottom-right{bottom:14px;right:16px;transform:rotate(180deg)}
+
+.neon-glow{
+  background:linear-gradient(110deg,#00f0ff 15%,#ffffff 45%,#ff00c8 55%,#00f0ff 85%);
+  background-size:200% auto;
+  color:transparent;
+  -webkit-background-clip:text;
+  background-clip:text;
+  animation:neonSweep 2.2s linear infinite;
+  filter:drop-shadow(0 0 10px rgba(0,240,255,.8));
+}
+@keyframes neonSweep{
+  0%{background-position:200% center}
+  100%{background-position:-200% center}
+}
+
+.card-back{transform:rotateY(180deg);background-color:#070716;background-image:linear-gradient(rgba(255,0,200,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,0,200,.1) 1px,transparent 1px);background-size:14px 14px;border-color:#ff00c8;display:flex;align-items:center;justify-content:center}
+.card-back .back-oval{position:absolute;width:85%;height:58%;background:linear-gradient(135deg,#7b009a,#2b0066);border-radius:50%;transform:rotate(-25deg);border:3.5px solid #ff00c8;box-shadow:0 0 25px rgba(255,0,200,.5)}
+.card-back .back-title{position:relative;z-index:2;font-size:2.8rem;font-weight:900;font-style:italic;color:#fff;text-shadow:-3px 3px 0 #ff00c8,3px -3px 0 #00f0ff,0 0 12px #fff;transform:rotate(-12deg);letter-spacing:1px}
+
+.card-side{min-height:380px;max-height:88vh;overflow-y:auto;padding:26px;border-radius:24px;background:rgba(7,15,35,.82);border:1px solid rgba(40,232,255,.3);display:flex;flex-direction:column;gap:16px}.card-side h2{font-size:1.4rem;letter-spacing:1.5px;text-transform:uppercase;color:#00f0ff}.card-side p{color:#a2c4d8;font-size:1rem;line-height:1.4}
+.range-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.range-row label{font-size:.85rem;color:#9bb4c8}.range-row input,.custom-input-group input{width:100%;margin-top:4px;padding:12px 14px;border-radius:12px;border:1px solid rgba(40,232,255,.3);background:#040a19;color:white;outline:none;font-weight:700;font-size:1.05rem}
+.action-btn{width:100%;padding:14px;border:0;border-radius:14px;background:linear-gradient(90deg,#087da4,#1ab6d1);color:white;font-size:1rem;font-weight:800;cursor:pointer;transition:.2s}.action-btn:hover{filter:brightness(1.15);transform:scale(1.01)}.action-btn.secondary{background:rgba(40,232,255,.12);border:1px solid rgba(40,232,255,.3);color:#00f0ff}.action-btn.secondary:hover{background:rgba(40,232,255,.22)}
+
+.custom-input-group{display:flex;gap:10px;margin-top:4px}
+.custom-input-group button{width:auto;padding:0 22px;white-space:nowrap}
+.values-pool-header{font-size:.9rem;font-weight:800;color:#8ab4c8;text-transform:uppercase;letter-spacing:1px;margin-top:8px;display:flex;justify-content:space-between;align-items:center}
+.toggle-visibility-btn{background:none;border:none;color:#00f0ff;cursor:pointer;font-size:0.85rem;font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:4px;transition:color .2s}
+.toggle-visibility-btn:hover{color:#fff}
+.drawn-list{display:flex;flex-wrap:wrap;gap:8px;max-height:170px;overflow-y:auto;padding:8px;background:rgba(0,0,0,.3);border-radius:12px;border:1px solid rgba(255,255,255,.08);transition:max-height .3s, opacity .3s}
+.drawn-list.hidden-pool{display:none}
+.drawn-item{padding:7px 12px;border-radius:10px;background:rgba(40,232,255,.12);border:1px solid rgba(40,232,255,.3);font-weight:800;font-size:.95rem;display:inline-flex;align-items:center;gap:8px}
+.drawn-item.custom-val{background:rgba(255,0,200,.15);border-color:rgba(255,0,200,.4);color:#ff9ee9}
+.drawn-item .remove-val-btn{cursor:pointer;color:#ff4f8b;font-weight:900;font-size:1.1rem;line-height:1;border:0;background:none;padding:0 2px}.drawn-item .remove-val-btn:hover{color:#fff}
+.empty{color:#718b9a;font-size:.95rem;padding:6px}
+
+#wheelCanvas {
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: min(85vw, 420px);
+  height: min(85vw, 420px);
+}
+#wheelCanvas:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 35px rgba(0, 240, 255, 0.6), inset 0 0 15px rgba(0, 0, 0, 0.8) !important;
+}
+#wheelCanvas:active {
+  transform: scale(0.98);
+}
+
+@media(max-width:768px){
+  .sidebar{
+    left:50%;
+    top:auto;
+    bottom:12px;
+    transform:translateX(-50%);
+    width:auto;
+    height:56px;
+    flex-direction:row;
+    padding:6px 14px;
+    border-radius:28px;
+  }
+  .nav-btn{width:42px;height:42px}
+  .nav-divider{width:1px;height:100%;margin:0 2px}
+
+  .view{
+    padding:12px 12px 80px 12px;
+  }
+
+  .grid-board{--cell:clamp(32px,8vw,58px)}
+  .cell{font-size:clamp(.8rem,3vw,1.25rem)}
+
+  .triad-overlay{padding:12px 12px 0 12px}
+  .float-card{width:56px;height:56px;font-size:1.5rem;border-radius:12px}
+  .op-select{width:50px;height:50px;font-size:1.4rem;border-radius:12px}
+  .check-confirm-btn{width:52px;height:52px;font-size:1.6rem;border-radius:14px}
+
+  .cards-layout{
+    grid-template-columns:1fr;
+    gap:20px;
+    height:100%;
+    overflow-y:auto;
+  }
+  
+  .card-wrapper{width:220px;height:320px}
+  .card-front .main-number{font-size:4.2rem}
+  .card-back .back-title{font-size:2.2rem}
+  
+  .card-side{
+    max-height:none;
+    min-height:auto;
+    padding:18px;
+  }
+
+  .last-drawn-widget{left:12px;bottom:78px;padding:6px 12px}
+  .last-drawn-value{font-size:1.3rem}
+  .grid-controls{right:12px;bottom:78px}
+  .reset-selection{top:12px;right:12px;padding:8px 14px;font-size:0.85rem}
+  
+  .number-box { width: 70px; height: 70px; font-size: 2rem; }
+  .side-box.reveal { width: 70px; }
+}
+</style></head><body>
+
+<!-- PANTALLA DE INICIO (MENÚ TRÍADA GAMER / SYNTHWAVE) -->
+<div id="menu-container">
+  <h1 class="menu-title">SUBASTA DE TRÍADAS</h1>
+  
+  <div class="triad-container" id="triad">
+    <div id="left-box" class="number-box side-box">7</div>
+    <div id="center-box" class="number-box">1</div>
+    <div id="right-box" class="number-box side-box">3</div>
+  </div>
+
+  <p class="instruction" id="instruction-text">Haz clic en la casilla para comenzar</p>
+</div>
+
+<nav class="sidebar">
+  <button class="nav-btn active" data-view="gridView" title="Cuadrícula"><svg class="stroke-icon" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/></svg></button>
+  <button class="nav-btn" data-view="auctionView" title="Subasta"><svg class="stroke-icon" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></button>
+  <button class="nav-btn" data-view="raffleView" title="Rifa"><svg viewBox="0 0 100 100">
+    <path d="M50 50 C40 33 22 30 22 17 C22 4 38 3 50 21 C62 3 78 4 78 17 C78 30 60 33 50 50 Z"/>
+    <path d="M50 50 C67 40 70 22 83 22 C96 22 97 38 79 50 C97 62 96 78 83 78 C70 78 67 60 50 50 Z"/>
+    <path d="M50 50 C60 67 78 70 78 83 C78 96 62 97 50 79 C38 97 22 96 22 83 C22 70 40 67 50 50 Z"/>
+    <path d="M50 50 C33 60 30 78 17 78 C4 78 3 62 21 50 C3 38 4 22 17 22 C30 22 33 40 50 50 Z"/>
+    <path d="M49 52 C46 68 40 83 26 95 C23 98 19 96 22 92 C34 81 40 68 44 52 Z"/>
+  </svg></button>
+  <div class="nav-divider"></div>
+  <button class="nav-btn" id="soundToggle" title="Sonido"><svg id="soundIcon" class="stroke-icon" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"/></svg></button>
+  <button class="nav-btn crown-btn active-glow" id="hierarchyToggle" title="Activar/Desactivar Jerarquía Operacional"><svg viewBox="0 0 100 100">
+    <circle cx="9" cy="44" r="6"/>
+    <circle cx="28" cy="27" r="6.5"/>
+    <circle cx="50" cy="17" r="7.5"/>
+    <circle cx="72" cy="27" r="6.5"/>
+    <circle cx="91" cy="44" r="6"/>
+    <path d="M12 48 L27 32 L38 52 L50 23 L62 52 L73 32 L88 48 C84 72 74 81 50 81 C26 81 16 72 12 48 Z"/>
+    <path d="M14 74 C24 88 76 88 86 74 C76 93 24 93 14 74 Z"/>
+  </svg></button>
+  <button class="nav-btn" id="homeToggle" title="Menú Principal"><svg class="stroke-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
+</nav>
+
+<section class="view grid-view active" id="gridView">
+  <div class="grid-stage" id="gridStage">
+    <div class="grid-board" id="gridBoard"></div>
+    
+    <div class="last-drawn-widget" id="lastDrawnWidget" title="Ir a la carta de subasta">
+      <div class="last-drawn-label">Última<br>Subasta</div>
+      <div class="last-drawn-value neon-glow" id="lastDrawnVal">?</div>
+    </div>
+
+    <div class="grid-controls">
+      <button class="grid-control" id="zoomOut">−</button>
+      <button class="grid-control" id="zoomReset">1:1</button>
+      <button class="grid-control" id="zoomIn">+</button>
+      <button class="grid-control" id="fullscreen">⛶</button>
+    </div>
+  </div>
+</section>
+
+<div class="triad-overlay"><div class="floating-cards" id="floatingCards"></div></div>
+<button class="reset-selection" id="resetSelection">↻ Reiniciar tríada</button>
+
+<!-- VENTANA / MODAL DE RESULTADO -->
+<div class="finish" id="finishMessage">
+  <div class="finish-box" id="finishBox" title="Haz clic para continuar">
+    <strong id="finishTitle">¡Tríada completa!</strong>
+    <small id="finishDesc">Pulsa aquí para continuar.</small>
+  </div>
+</div>
+
+<!-- SUBASTA -->
+<section class="view cards-view" id="auctionView">
+  <div class="cards-layout">
+    <div class="card-wrapper">
+      <div class="uno-80s-card" id="auctionCard">
+        <div class="card-face card-front">
+          <div class="corner-index top-left neon-glow" id="auctionIdxTL">?</div>
+          <div class="oval-bg"></div>
+          <div class="main-number neon-glow" id="auctionNumber">?</div>
+          <div class="corner-index bottom-right neon-glow" id="auctionIdxBR">?</div>
+        </div>
+        <div class="card-face card-back">
+          <div class="back-oval"></div>
+          <div class="back-title">¡Tríada!</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-side">
+      <h2>Carta de Subasta</h2>
+      <p>Toca la carta para girarla y obtener un valor sin repetir de la lista.</p>
+      
+      <div class="custom-input-group">
+        <input type="number" id="customValInput" placeholder="Añadir valor personalizado...">
+        <button class="action-btn" id="addCustomBtn">Añadir</button>
+      </div>
+
+      <div class="values-pool-header">
+        <span>Valores disponibles (<span id="valuesCount">0</span>)</span>
+        <button class="toggle-visibility-btn" id="togglePoolBtn">👁️ Ocultar</button>
+      </div>
+      <div class="drawn-list" id="auctionPoolList"></div>
+
+      <div class="values-pool-header">Historial de Sorteo</div>
+      <div class="drawn-list" id="auctionDrawnList"></div>
+
+      <div style="display:flex;gap:10px;margin-top:6px;">
+        <button class="action-btn" id="auctionReset">Reiniciar subasta</button>
+        <button class="action-btn secondary" id="restoreDefaultsBtn" title="Restaurar valores predeterminados">Restaurar lista</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RIFA CON RULETA INTERACTIVA -->
+<section class="view cards-view" id="raffleView">
+  <div class="cards-layout">
+    
+    <div style="position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 0;">
+      <div style="width:0; height:0; border-left:16px solid transparent; border-right:16px solid transparent; border-top:26px solid #ff00c8; margin-bottom:-12px; z-index:10; filter:drop-shadow(0 0 10px #ff00c8);"></div>
+      <canvas id="wheelCanvas" width="420" height="420" style="border-radius:50%; box-shadow:0 0 30px rgba(0,240,255,0.35), inset 0 0 20px rgba(0,0,0,0.8); background:#040a19; border:4px solid #00f0ff;"></canvas>
+    </div>
+
+    <div class="card-side">
+      <h2>Ruleta de Rifa</h2>
+      <p>Ajusta el número de divisiones y <strong>haz clic / toca directamente sobre la ruleta</strong> para girarla.</p>
+      
+      <div style="text-align:center; padding:16px; background:rgba(0,0,0,0.3); border-radius:16px; border:1px solid rgba(40,232,255,0.25);">
+        <span style="font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#8ab4c8; display:block;">Número Ganador</span>
+        <div id="raffleWinnerVal" class="neon-glow" style="font-size:4.2rem; font-weight:900; line-height:1.1;">?</div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.95rem; font-weight:800;">
+          <label for="wheelDivsInput" style="color:#9bb4c8;">Número de divisiones:</label>
+          <span id="wheelDivsCount" style="color:#00f0ff; font-weight:900; font-size:1.1rem;">10</span>
+        </div>
+        <input type="range" id="wheelDivsInput" min="2" max="30" value="10" style="width:100%; height:8px; accent-color:#00f0ff; cursor:pointer;">
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+/* SINTETIZADOR DE AUDIO */
+let soundEnabled=true, audioCtx=null;
+function initAudio(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+}
+function tone(f,d=.16,v=.045,t='sine',delay=0){
+  if(!soundEnabled) return;
+  initAudio();
+  const n=audioCtx.currentTime+delay, o=audioCtx.createOscillator(), g=audioCtx.createGain();
+  o.type=t; o.frequency.setValueAtTime(f,n);
+  g.gain.setValueAtTime(.0001,n);
+  g.gain.exponentialRampToValueAtTime(v,n+.025);
+  g.gain.exponentialRampToValueAtTime(.0001,n+d);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(n); o.stop(n+d+.03);
+}
+
+function clickSound(){tone(392,.12,.035); tone(523.25,.18,.025,'sine',.055)}
+function directionSound(){tone(329.63,.14,.035); tone(440,.18,.03,'sine',.07); tone(659.25,.25,.025,'sine',.13)}
+function completeSound(){tone(392,.18,.045); tone(523.25,.2,.045,'sine',.08); tone(659.25,.24,.04,'sine',.17); tone(783.99,.38,.035,'sine',.27)}
+function errorSound(){tone(220,.2,.05,'sawtooth'); tone(174.61,.3,.05,'sawtooth',.1)}
+
+/* EFECTOS DE SONIDO ESPECÍFICOS DEL MENÚ */
+function menuHoverSound(){ tone(587.33, 0.08, 0.02, 'sine'); }
+function menuStartSound(){
+  tone(440, 0.1, 0.04, 'triangle');
+  tone(554.37, 0.12, 0.04, 'triangle', 0.08);
+  tone(659.25, 0.15, 0.04, 'triangle', 0.16);
+  tone(880, 0.3, 0.05, 'sine', 0.24);
+}
+
+/* LÓGICA DEL MENÚ INICIAL */
+const centerBox = document.getElementById('center-box');
+const leftBox = document.getElementById('left-box');
+const rightBox = document.getElementById('right-box');
+const triad = document.getElementById('triad');
+const menuContainer = document.getElementById('menu-container');
+const instructionText = document.getElementById('instruction-text');
+
+let counter = 1;
+let isMenuAnimating = false;
+let intervalId = null;
+
+function startMenuAnimation(){
+  clearInterval(intervalId);
+  counter = 1;
+  centerBox.textContent = counter;
+  intervalId = setInterval(() => {
+    if (!isMenuAnimating) {
+      counter = (counter % 9) + 1;
+      centerBox.textContent = counter;
+    }
+  }, 100);
+}
+
+startMenuAnimation();
+
+centerBox.addEventListener('mouseenter', () => {
+  if (!isMenuAnimating) menuHoverSound();
+});
+
+centerBox.addEventListener('click', () => {
+  if (isMenuAnimating) return;
+  isMenuAnimating = true;
+
+  clearInterval(intervalId);
+  menuStartSound();
+
+  instructionText.style.opacity = '0';
+
+  leftBox.classList.add('reveal');
+  rightBox.classList.add('reveal');
+
+  setTimeout(() => {
+    triad.classList.add('joined');
+  }, 300);
+
+  setTimeout(() => {
+    menuContainer.classList.add('fade-out');
+    setTimeout(() => {
+      menuContainer.style.display = 'none';
+    }, 800);
+  }, 2300);
+});
+
+/* LÓGICA PRINCIPAL DEL JUEGO */
+const GRID=[[3,8,2,15,4,1,6,12,5,2],[5,1,9,3,7,2,10,4,1,8],[12,4,6,1,18,5,3,9,2,14],[2,7,3,10,2,8,1,6,15,3],[9,2,16,5,4,3,11,2,7,5],[1,5,2,8,1,12,5,4,3,10],[6,13,4,3,9,2,7,1,8,2],[4,3,10,6,2,15,4,5,19,6],[8,1,5,2,14,3,8,2,1,4],[2,9,3,7,1,6,2,10,5,3]];
+const DEFAULT_AUCTION_NUMBERS=[10,12,13,14,15,16,18,20,21,22,24,25,27,28,30,32,35,36,40,42,45,48,50,54,56,60,63,70,80,-121];
+
+let currentTargetNumber = null;
+let useHierarchy = true;
+let isPoolVisible = true;
+let autoCloseTimeout = null;
+let lastEvaluationSuccess = false;
+
+const views=document.querySelectorAll('.view'),navButtons=document.querySelectorAll('.nav-btn[data-view]');
+function showView(id){
+  views.forEach(v=>v.classList.toggle('active',v.id===id));
+  navButtons.forEach(b=>b.classList.toggle('active',b.dataset.view===id));
+  clickSound();
+  if(id !== 'gridView'){ resetTriad(); }
+}
+navButtons.forEach(b=>b.onclick=()=>showView(b.dataset.view));
+document.getElementById('lastDrawnWidget').onclick=()=>showView('auctionView');
+
+document.getElementById('soundToggle').onclick=()=>{
+  soundEnabled=!soundEnabled;
+  if(soundEnabled){initAudio();tone(523.25,.25,.045)}
+  document.getElementById('soundIcon').innerHTML=soundEnabled
+    ?'<path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"/>'
+    :'<path d="M4 10v4h4l5 4V6l-5 4z"/><path d="m16 9 5 6M21 9l-5 6"/>';
+};
+
+const hierarchyToggleBtn = document.getElementById('hierarchyToggle');
+hierarchyToggleBtn.onclick = () => {
+  useHierarchy = !useHierarchy;
+  hierarchyToggleBtn.classList.toggle('active-glow', useHierarchy);
+  clickSound();
+};
+
+/* BOTÓN IR AL MENÚ PRINCIPAL Y REINICIAR PÁGINA */
+document.getElementById('homeToggle').onclick = () => {
+  clickSound();
+  resetTriad();
+  
+  // Reiniciar valores de subasta
+  currentAuctionPool = DEFAULT_AUCTION_NUMBERS.map(v => ({ val: v, custom: false }));
+  auctionRemaining = [...currentAuctionPool];
+  auctionDrawn = [];
+  setCardValue(auctionNumber, auctionIdxTL, auctionIdxBR, '?');
+  updateGridWidget('?');
+  renderAuctionUI();
+
+  // Reiniciar ruleta
+  winnerVal.textContent = '?';
+  winnerVal.classList.add('neon-glow');
+  currentAngle = 0;
+  drawWheel();
+
+  // Resetear estados del menú animado
+  isMenuAnimating = false;
+  instructionText.style.opacity = '1';
+  leftBox.classList.remove('reveal');
+  rightBox.classList.remove('reveal');
+  triad.classList.remove('joined');
+  menuContainer.classList.remove('fade-out');
+  menuContainer.style.display = 'flex';
+  
+  startMenuAnimation();
+  showView('gridView');
+};
+
+const board=document.getElementById('gridBoard'),stage=document.getElementById('gridStage');
+GRID.forEach((row,r)=>row.forEach((value,c)=>{
+  const cell=document.createElement('button');
+  cell.className='cell';
+  cell.textContent=value;
+  cell.dataset.row=r;
+  cell.dataset.col=c;
+  board.appendChild(cell);
+}));
+
+let scale=1,offsetX=0,offsetY=0,dragging=false,startX=0,startY=0,startOffsetX=0,startOffsetY=0;
+function renderBoard(){board.style.transform=`translate(${offsetX}px,${offsetY}px) scale(${scale})`}
+function setScale(s){scale=Math.max(.55,Math.min(2.7,s));renderBoard()}
+document.getElementById('zoomIn').onclick=()=>{setScale(scale+.15);clickSound()};
+document.getElementById('zoomOut').onclick=()=>{setScale(scale-.15);clickSound()};
+document.getElementById('zoomReset').onclick=()=>{scale=1;offsetX=offsetY=0;renderBoard();clickSound()};
+document.getElementById('fullscreen').onclick=async()=>{try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen()}catch(e){}clickSound()};
+
+stage.onwheel=e=>{e.preventDefault();setScale(scale+(e.deltaY<0?.1:-.1))};
+
+function ps(e){
+  if(selectionComplete || e.target.closest('.grid-control') || e.target.closest('.last-drawn-widget')) return;
+  dragging=true;
+  board.classList.add('dragging');
+  const p=e.touches?e.touches[0]:e;
+  startX=p.clientX; startY=p.clientY;
+  startOffsetX=offsetX; startOffsetY=offsetY;
+}
+function pm(e){
+  if(!dragging)return;
+  const p=e.touches?e.touches[0]:e;
+  offsetX=startOffsetX+p.clientX-startX;
+  offsetY=startOffsetY+p.clientY-startY;
+  renderBoard();
+}
+function pe(){dragging=false;board.classList.remove('dragging')}
+
+stage.onmousedown=ps;
+window.onmousemove=pm;
+window.onmouseup=pe;
+stage.ontouchstart=ps;
+window.ontouchend=pe;
+
+let selectedStart=null,selectedCells=[],selectionComplete=false;
+const floatingCards=document.getElementById('floatingCards'),resetSelection=document.getElementById('resetSelection'),finishMessage=document.getElementById('finishMessage'),finishBox=document.getElementById('finishBox'),finishTitle=document.getElementById('finishTitle'),finishDesc=document.getElementById('finishDesc');
+
+function cellAt(r,c){return r<0||r>=10||c<0||c>=10?null:board.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`)}
+
+function addFloatingCard(v,i){
+  const card=document.createElement('div');
+  card.className='float-card';
+  card.textContent=v;
+  card.style.animationDelay=i*.08+'s';
+  floatingCards.appendChild(card);
+}
+
+function addOpSelect(id){
+  const sel=document.createElement('select');
+  sel.className='op-select';
+  sel.id=id;
+  ['+','-','×','÷'].forEach(op=>{
+    const opt=document.createElement('option');
+    opt.value=op; opt.textContent=op;
+    sel.appendChild(opt);
+  });
+  sel.onchange=()=>{ clickSound(); };
+  floatingCards.appendChild(sel);
+}
+
+function addCheckButton(){
+  const btn = document.createElement('button');
+  btn.className = 'check-confirm-btn';
+  btn.textContent = '✔';
+  btn.title = 'Verificar Tríada';
+  btn.onclick = () => {
+    evaluateTriadMath();
+  };
+  floatingCards.appendChild(btn);
+}
+
+function removeDirectionButtons(){board.querySelectorAll('.dir-overlay-btn').forEach(btn=>btn.remove());}
+
+function beginSelection(r,c){
+  if(selectionComplete)return;
+  if(selectedStart && selectedStart.r === r && selectedStart.c === c){resetTriadStateOnly();clickSound();return;}
+  resetTriadStateOnly();
+  selectedStart={r,c};
+  selectedCells=[{r,c}];
+  cellAt(r,c).classList.add('selected');
+  floatingCards.innerHTML='';
+  addFloatingCard(GRID[r][c],0);
+  const dirs=[{dr:-1,dc:-1,t:'↖'},{dr:-1,dc:0,t:'↑'},{dr:-1,dc:1,t:'↗'},{dr:0,dc:-1,t:'←'},{dr:0,dc:1,t:'→'},{dr:1,dc:-1,t:'↙'},{dr:1,dc:0,t:'↓'},{dr:1,dc:1,t:'↘'}];
+  dirs.forEach(d=>{
+    if(cellAt(r+d.dr, c+d.dc) && cellAt(r+2*d.dr, c+2*d.dc)){
+      const adjCell = cellAt(r+d.dr, c+d.dc);
+      const btn = document.createElement('button');
+      btn.className = 'dir-overlay-btn';
+      btn.textContent = d.t;
+      btn.onclick = (e)=>{e.stopPropagation();completeSelection(d.dr, d.dc);directionSound();};
+      adjCell.appendChild(btn);
+    }
+  });
+  clickSound();
+}
+
+function completeSelection(dr,dc){
+  if(!selectedStart||selectionComplete)return;
+  const r=selectedStart.r,c=selectedStart.c,p=[{r:r+dr,c:c+dc},{r:r+2*dr,c:c+2*dc}];
+  if(p.some(x=>!cellAt(x.r,x.c)))return;
+  removeDirectionButtons();
+  
+  floatingCards.innerHTML='';
+  addFloatingCard(GRID[r][c],0);
+  addOpSelect('op1');
+  
+  p.forEach((x,i)=>{
+    selectedCells.push(x);
+    cellAt(x.r,x.c).classList.add('selected');
+    addFloatingCard(GRID[x.r][x.c],i+1);
+    if(i===0) addOpSelect('op2');
+  });
+
+  addCheckButton();
+
+  selectionComplete=true;
+  resetSelection.classList.add('visible');
+  board.classList.add('locked');
+}
+
+function computeOp(a, op, b){
+  if(op==='+') return a + b;
+  if(op==='-') return a - b;
+  if(op==='×') return a * b;
+  if(op==='÷') return b !== 0 ? a / b : NaN;
+  return 0;
+}
+
+function evaluateTriadMath(){
+  if(selectedCells.length < 3) return;
+  if(autoCloseTimeout) clearTimeout(autoCloseTimeout);
+
+  const n1 = GRID[selectedCells[0].r][selectedCells[0].c];
+  const n2 = GRID[selectedCells[1].r][selectedCells[1].c];
+  const n3 = GRID[selectedCells[2].r][selectedCells[2].c];
+  const op1 = document.getElementById('op1').value;
+  const op2 = document.getElementById('op2').value;
+
+  let total;
+  const isHigh1 = op1 === '×' || op1 === '÷';
+  const isHigh2 = op2 === '×' || op2 === '÷';
+
+  if(useHierarchy && !isHigh1 && isHigh2){
+    const sub = computeOp(n2, op2, n3);
+    total = computeOp(n1, op1, sub);
+  } else {
+    const sub = computeOp(n1, op1, n2);
+    total = computeOp(sub, op2, n3);
+  }
+
+  finishMessage.classList.add('visible');
+  finishBox.classList.remove('success','error');
+
+  if(currentTargetNumber !== null && total === currentTargetNumber){
+    lastEvaluationSuccess = true;
+    finishBox.classList.add('success');
+    finishTitle.textContent = "¡Tríada Correcta! 🎉";
+    finishDesc.textContent = `${n1} ${op1} ${n2} ${op2} ${n3} = ${total}`;
+    completeSound();
+
+    autoCloseTimeout = setTimeout(() => {
+      resetTriad();
+    }, 2200);
+
+  } else {
+    lastEvaluationSuccess = false;
+    finishBox.classList.add('error');
+    finishTitle.textContent = "Tríada Incorrecta ❌";
+    finishDesc.textContent = `${n1} ${op1} ${n2} ${op2} ${n3} = ${isNaN(total) ? '?' : total} (Objetivo: ${currentTargetNumber !== null ? currentTargetNumber : '?'})`;
+    errorSound();
+  }
+}
+
+function resetTriadStateOnly(){
+  if(autoCloseTimeout) clearTimeout(autoCloseTimeout);
+  removeDirectionButtons();
+  selectedCells.forEach(p=>{const c=cellAt(p.r,p.c);if(c)c.classList.remove('selected');});
+  selectedStart=null;selectedCells=[];selectionComplete=false;floatingCards.innerHTML='';
+}
+
+function resetTriad(){
+  resetTriadStateOnly();
+  resetSelection.classList.remove('visible');
+  finishMessage.classList.remove('visible');
+  board.classList.remove('locked');
+  clickSound();
+}
+
+finishBox.onclick = () => {
+  if (lastEvaluationSuccess) {
+    resetTriad();
+  } else {
+    finishMessage.classList.remove('visible');
+    clickSound();
+  }
+};
+
+board.onclick=e=>{
+  if(e.target.closest('.dir-overlay-btn') || selectionComplete || dragging) return;
+  const cell=e.target.closest('.cell');
+  if(cell) beginSelection(+cell.dataset.row,+cell.dataset.col);
+};
+
+resetSelection.onclick=resetTriad;
+
+/* SUBASTA */
+function setCardValue(numEl, tlEl, brEl, val){
+  numEl.textContent = val;
+  tlEl.textContent = val;
+  brEl.textContent = val;
+  if(val !== '?'){
+    numEl.classList.remove('neon-glow');
+    tlEl.classList.remove('neon-glow');
+    brEl.classList.remove('neon-glow');
+  } else {
+    numEl.classList.add('neon-glow');
+    tlEl.classList.add('neon-glow');
+    brEl.classList.add('neon-glow');
+  }
+}
+
+function updateGridWidget(val){
+  const widgetVal = document.getElementById('lastDrawnVal');
+  widgetVal.textContent = val;
+  if(val !== '?' && val !== 'FIN'){
+    widgetVal.classList.remove('neon-glow');
+    currentTargetNumber = Number(val);
+  } else {
+    widgetVal.classList.add('neon-glow');
+    currentTargetNumber = null;
+  }
+}
+
+let currentAuctionPool = DEFAULT_AUCTION_NUMBERS.map(v => ({ val: v, custom: false }));
+let auctionRemaining = [...currentAuctionPool];
+let auctionDrawn = [];
+let isAuctionAnimating = false;
+
+const auctionCard=document.getElementById('auctionCard'),
+      auctionNumber=document.getElementById('auctionNumber'),
+      auctionIdxTL=document.getElementById('auctionIdxTL'),
+      auctionIdxBR=document.getElementById('auctionIdxBR'),
+      auctionPoolList=document.getElementById('auctionPoolList'),
+      auctionDrawnList=document.getElementById('auctionDrawnList'),
+      valuesCount=document.getElementById('valuesCount'),
+      togglePoolBtn=document.getElementById('togglePoolBtn');
+
+togglePoolBtn.onclick = () => {
+  isPoolVisible = !isPoolVisible;
+  togglePoolBtn.textContent = isPoolVisible ? '👁️ Ocultar' : '👁️ Mostrar';
+  auctionPoolList.classList.toggle('hidden-pool', !isPoolVisible);
+  clickSound();
+};
+
+function renderAuctionUI(){
+  valuesCount.textContent = auctionRemaining.length;
+
+  auctionPoolList.innerHTML = auctionRemaining.length
+    ? auctionRemaining.map((item, idx) => `
+        <span class="drawn-item ${item.custom ? 'custom-val' : ''}">
+          ${item.val}
+          <button class="remove-val-btn" onclick="removeValueFromPool(${idx})" title="Eliminar valor">×</button>
+        </span>`).join('')
+    : '<span class="empty">No quedan valores en la bolsa.</span>';
+
+  auctionDrawnList.innerHTML = auctionDrawn.length
+    ? auctionDrawn.map(item => `
+        <span class="drawn-item ${item.custom ? 'custom-val' : ''}">${item.val}</span>`).join('')
+    : '<span class="empty">Todavía no se ha sorteado ningún valor.</span>';
+}
+
+function removeValueFromPool(idx){
+  auctionRemaining.splice(idx, 1);
+  clickSound();
+  renderAuctionUI();
+}
+
+function addCustomValue(){
+  const input = document.getElementById('customValInput');
+  const val = parseInt(input.value, 10);
+  if(!isNaN(val)){
+    const newItem = { val, custom: true };
+    currentAuctionPool.push(newItem);
+    auctionRemaining.push(newItem);
+    input.value = '';
+    clickSound();
+    renderAuctionUI();
+  }
+}
+
+document.getElementById('addCustomBtn').onclick = addCustomValue;
+document.getElementById('customValInput').onkeydown = (e) => { if(e.key === 'Enter') addCustomValue(); };
+
+document.getElementById('restoreDefaultsBtn').onclick = () => {
+  currentAuctionPool = DEFAULT_AUCTION_NUMBERS.map(v => ({ val: v, custom: false }));
+  auctionRemaining = [...currentAuctionPool];
+  auctionDrawn = [];
+  setCardValue(auctionNumber, auctionIdxTL, auctionIdxBR, '?');
+  updateGridWidget('?');
+  clickSound();
+  renderAuctionUI();
+};
+
+function drawAuction(){
+  if(isAuctionAnimating) return;
+  if(!auctionRemaining.length){
+    setCardValue(auctionNumber, auctionIdxTL, auctionIdxBR, 'FIN');
+    updateGridWidget('FIN');
+    return;
+  }
+  isAuctionAnimating = true;
+  initAudio();
+
+  auctionCard.classList.add('flipping');
+  tone(261.63,.14,.04);
+
+  setTimeout(()=>{
+    const i = Math.floor(Math.random() * auctionRemaining.length);
+    const item = auctionRemaining.splice(i, 1)[0];
+    auctionDrawn.push(item);
+    setCardValue(auctionNumber, auctionIdxTL, auctionIdxBR, item.val);
+    updateGridWidget(item.val);
+    renderAuctionUI();
+  }, 300);
+
+  setTimeout(()=>{
+    auctionCard.classList.remove('flipping');
+    tone(392,.2,.04,'sine');
+    isAuctionAnimating = false;
+  }, 600);
+}
+
+auctionCard.onclick = drawAuction;
+document.getElementById('auctionReset').onclick = () => {
+  auctionRemaining = [...currentAuctionPool];
+  auctionDrawn = [];
+  renderAuctionUI();
+  setCardValue(auctionNumber, auctionIdxTL, auctionIdxBR, '?');
+  updateGridWidget('?');
+  clickSound();
+};
+
+renderAuctionUI();
+
+/* RIFA CON RULETA INTERACTIVA */
+const canvas = document.getElementById('wheelCanvas');
+const ctx = canvas.getContext('2d');
+const divsInput = document.getElementById('wheelDivsInput');
+const divsCount = document.getElementById('wheelDivsCount');
+const winnerVal = document.getElementById('raffleWinnerVal');
+
+let numDivisions = parseInt(divsInput.value, 10);
+let currentAngle = 0;
+let isSpinning = false;
+
+const wheelColors = ['#00a8e8', '#7b009a', '#00f0ff', '#ff00c8', '#002e66', '#4a00e0'];
+
+function drawWheel() {
+  const numSegments = numDivisions;
+  const arc = (2 * Math.PI) / numSegments;
+  const radius = canvas.width / 2;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = 0; i < numSegments; i++) {
+    const angle = currentAngle + i * arc;
+    
+    ctx.beginPath();
+    ctx.fillStyle = wheelColors[i % wheelColors.length];
+    ctx.moveTo(radius, radius);
+    ctx.arc(radius, radius, radius - 6, angle, angle + arc);
+    ctx.lineTo(radius, radius);
+    ctx.fill();
+    ctx.strokeStyle = '#040a19';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(radius, radius);
+    ctx.rotate(angle + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold ' + (numSegments > 18 ? '16px' : '22px') + ' Segoe UI, Arial';
+    ctx.shadowColor = '#000000';
+    ctx.shadowBlur = 4;
+    ctx.fillText(i + 1, radius - 22, 7);
+    ctx.restore();
+  }
+
+  ctx.beginPath();
+  ctx.arc(radius, radius, 26, 0, 2 * Math.PI);
+  ctx.fillStyle = '#030611';
+  ctx.fill();
+  ctx.strokeStyle = '#00f0ff';
+  ctx.lineWidth = 3.5;
+  ctx.stroke();
+}
+
+divsInput.oninput = (e) => {
+  if (isSpinning) return;
+  numDivisions = parseInt(e.target.value, 10);
+  divsCount.textContent = numDivisions;
+  winnerVal.textContent = '?';
+  winnerVal.classList.add('neon-glow');
+  drawWheel();
+  clickSound();
+};
+
+function spinWheel() {
+  if (isSpinning) return;
+  isSpinning = true;
+  initAudio();
+  
+  winnerVal.textContent = '...';
+  winnerVal.classList.remove('neon-glow');
+
+  const extraSpins = Math.floor(Math.random() * 4) + 5;
+  const randomTargetSegment = Math.floor(Math.random() * numDivisions);
+  const segmentArc = (2 * Math.PI) / numDivisions;
+  
+  const targetAngle = (3 * Math.PI / 2) - (randomTargetSegment * segmentArc) - (segmentArc / 2);
+  const totalRotation = (extraSpins * 2 * Math.PI) + (targetAngle - (currentAngle % (2 * Math.PI)));
+
+  const startAngle = currentAngle;
+  const duration = 4000;
+  const startTime = performance.now();
+
+  let lastSoundSegment = -1;
+
+  function animateWheel(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    const easeOut = 1 - Math.pow(1 - progress, 3);
+    currentAngle = startAngle + totalRotation * easeOut;
+
+    const currentNormalized = (3 * Math.PI / 2 - currentAngle) % (2 * Math.PI);
+    const positiveNormalized = currentNormalized < 0 ? currentNormalized + 2 * Math.PI : currentNormalized;
+    const activeSegment = Math.floor(positiveNormalized / segmentArc) % numDivisions;
+
+    if (activeSegment !== lastSoundSegment) {
+      tone(440, 0.04, 0.02, 'triangle');
+      lastSoundSegment = activeSegment;
+    }
+
+    drawWheel();
+
+    if (progress < 1) {
+      requestAnimationFrame(animateWheel);
+    } else {
+      isSpinning = false;
+      const winningNumber = randomTargetSegment + 1;
+      winnerVal.textContent = winningNumber;
+      winnerVal.classList.remove('neon-glow');
+      completeSound();
+    }
+  }
+
+  requestAnimationFrame(animateWheel);
+}
+
+canvas.onclick = spinWheel;
+
+drawWheel();
+renderBoard();
+</script></body></html>
